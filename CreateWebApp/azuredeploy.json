@@ -119,7 +119,6 @@
     },
     "PlatformSelection": {
       "type": "string",
-      "defaultValue": "Windows",
       "allowedValues": [
         "Windows",
         "Linux"
