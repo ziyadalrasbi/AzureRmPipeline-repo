@@ -16,6 +16,9 @@
     },
     "PlatformSelection": {
         "value": "Windows"
+    },
+    "location": {
+        "value": "eastus" 
     }
   }
 }
