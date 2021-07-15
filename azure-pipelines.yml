@@ -13,13 +13,17 @@ steps:
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: 'AzureRmPipeline-conn'
-    subscriptionId: '036c9523-22ed-4407-84de-37ce553b4d7e'
+    azureResourceManagerConnection: 'Free Trial(bea02a17-caaa-4a8f-9f4a-3cc4b647bb1a)'
+    subscriptionId: 'bea02a17-caaa-4a8f-9f4a-3cc4b647bb1a'
     action: 'Create Or Update Resource Group'
-    resourceGroupName: 'AzureRmPipeline-rg'
-    location: 'UK South'
+    resourceGroupName: 'Test'
+    location: 'North Europe'
     templateLocation: 'URL of the file'
-    csmFileLink: 'https://raw.githubusercontent.com/ziyadalrasbi/AzureRmPipeline-repo/master/CreateWebApp/azuredeploy.json?token=ANI2BZXCYVMUXVFNIUHOQGTA63GEA'
-    overrideParameters: '-projectName myArmPipeline'
+    csmFileLink: 'https://raw.githubusercontent.com/ziyadalrasbi/AzureRmPipeline-repo/master/CreateWebApp/azuredeploy.json'
+    csmParametersFileLink: 'https://raw.githubusercontent.com/ziyadalrasbi/AzureRmPipeline-repo/master/CreateWebApp/azuredeploy.parameters.json'
+    overrideParameters: |
+      -adminUsername elielmal
+      -adminPasswordOrKey Allezparis21
+      -PlatformSelection Linux
     deploymentMode: 'Incremental'
-    deploymentName: 'DeployPipelineTemplate'
+    deploymentName: 'ArmDeployement1'
