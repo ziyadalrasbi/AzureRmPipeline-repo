@@ -58,7 +58,7 @@
         "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
       }
     },
-     "OSVersion": {
+    "OSVersion": {
       "type": "string",
       "defaultValue": "2019-Datacenter",
       "allowedValues": [
@@ -142,6 +142,19 @@
           {
             "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
             "keyData": "[parameters('adminPasswordOrKey')]"
+          }
+        ]
+      }
+    },
+    "windownsconfiguration": {
+      "winRM": {
+        "listeners": [
+          {
+            "protocol": "http"
+          },
+          {
+            "protocol": "https",
+            "certificateUrl": "<URL for the certificate you got in Step 4>"
           }
         ]
       }
@@ -278,7 +291,8 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]",
+          "windowsConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('windownsconfiguration'))]"
         }
       },
       "dependsOn": [
