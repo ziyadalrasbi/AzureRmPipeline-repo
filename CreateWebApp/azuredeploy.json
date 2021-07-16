@@ -38,13 +38,6 @@
         "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
       }
     },
-    "vaultResourceId": {
-      "type": "string",
-      "defaultValue": "/subscriptions/036c9523-22ed-4407-84de-37ce553b4d7e/resourceGroups/WinRMTest/providers/Microsoft.KeyVault/vaults/ziyadnewvault",
-      "metadata": {
-        "description": "ResourceId of the KeyVault"
-      }
-    },
     "dnsLabelPrefix": {
       "type": "string",
       "defaultValue": "[toLower(format(concat(parameters('vmName'), '-{0}'), uniqueString(resourceGroup().id)))]",
@@ -128,7 +121,15 @@
         "Windows",
         "Linux"
       ]
+    },
+    "vaultResourceId": {
+      "type": "string",
+      "defaultValue": "/subscriptions/036c9523-22ed-4407-84de-37ce553b4d7e/resourceGroups/WinRMTest/providers/Microsoft.KeyVault/vaults/ziyadskeyvault2",
+      "metadata": {
+        "description": "ResourceId of the KeyVault"
+      }
     }
+
   },
   "functions": [],
   "variables": {
@@ -284,37 +285,42 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
-      "apiVersion": "2020-06-01",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-          "typeHandlerVersion": "1.4",
-          "settings": {
-      "fileUris": [ 
-          "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-vm-winrm-windows/ConfigureWinRM.ps1",
-          "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-vm-winrm-windows/makecert.exe",
-          "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-vm-winrm-windows/winrmconf.cmd"
-        ],
-      "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file ConfigureWinRM.ps1 ',parameters('dnsLabelPrefix'))]"
-              }
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]",
+          "secrets": [
+            {
+              "sourceVault": {
+                "id": "[parameters('vaultResourceId')]"
+              },
+              "vaultCertificates": [
+                {
+                  "certificateUrl": "[reference(resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults/secrets', 'ziyadskeyvault2', 'testsecret'), '2015-06-01').secretUriWithVersion]",
+                  "certificateStore": "My"
+                }
+              ]
+            }
+          ],
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "winRM": {
+              "listeners": [
+                {
+                  "protocol": "Http"
+                },
+                {
+                  "protocol": "Https",
+                  "certificateUrl": "[reference(resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults/secrets', 'ziyadskeyvault2', 'testsecret'), '2015-06-01').secretUriWithVersion]"
+                }
+              ]
+            }
           }
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+        ]
       }
+    }
   ],
-  
+
   "outputs": {
     "adminUsername": {
       "type": "string",
