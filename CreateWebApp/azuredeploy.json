@@ -45,19 +45,6 @@
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
-    "ubuntuOSVersion": {
-      "type": "string",
-      "defaultValue": "18.04-LTS",
-      "allowedValues": [
-        "12.04.5-LTS",
-        "14.04.5-LTS",
-        "16.04.0-LTS",
-        "18.04-LTS"
-      ],
-      "metadata": {
-        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
-      }
-    },
     "OSVersion": {
       "type": "string",
       "defaultValue": "2019-Datacenter",
@@ -115,13 +102,6 @@
         "description": "Name of the Network Security Group"
       }
     },
-    "PlatformSelection": {
-      "type": "string",
-      "allowedValues": [
-        "Windows",
-        "Linux"
-      ]
-    },
     "vaultResourceId": {
       "type": "string",
       "defaultValue": "/subscriptions/036c9523-22ed-4407-84de-37ce553b4d7e/resourceGroups/WinRMTest/providers/Microsoft.KeyVault/vaults/ziyadskeyvault2",
@@ -135,24 +115,11 @@
   "variables": {
     "WinImagePublisher": "MicrosoftWindowsServer",
     "WinImageOffer": "WindowsServer",
-    "LinuxImageOffer": "UbuntuServer",
-    "linuxPublisher": "Canonical",
     "publicIPAddressName": "[format('{0}PublicIP', parameters('vmName'))]",
     "networkInterfaceName": "[format('{0}NetInt', parameters('vmName'))]",
-    "osDiskType": "Standard_GRS",
+    "osDiskType": "Standard_LRS",
     "subnetAddressPrefix": "10.1.0.0/24",
-    "addressPrefix": "10.1.0.0/16",
-    "linuxConfiguration": {
-      "disablePasswordAuthentication": true,
-      "ssh": {
-        "publicKeys": [
-          {
-            "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
-            "keyData": "[parameters('adminPasswordOrKey')]"
-          }
-        ]
-      }
-    }
+    "addressPrefix": "10.1.0.0/16"
   },
   "resources": [
     {
@@ -268,9 +235,9 @@
             }
           },
           "imageReference": {
-            "publisher": "[if(equals(parameters('platformSelection'), 'Windows'), variables('WinImagePublisher'), variables('linuxPublisher'))]",
-            "offer": "[if(equals(parameters('platformSelection'), 'Windows'), variables('WinImageOffer'), variables('LinuxImageOffer'))]",
-            "sku": "[if(equals(parameters('platformSelection'), 'Windows'), parameters('OSVersion'), parameters('ubuntuOSVersion'))]",
+            "publisher": "[variables('WinImagePublisher')]",
+            "offer": "[variables('WinImageOffer')]",
+            "sku": "[parameters('OSVersion')]",
             "version": "latest"
           }
         },
@@ -285,7 +252,6 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]",
           "secrets": [
             {
               "sourceVault": {
