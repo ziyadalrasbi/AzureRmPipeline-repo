@@ -13,17 +13,12 @@ steps:
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: 'Free Trial(bea02a17-caaa-4a8f-9f4a-3cc4b647bb1a)'
-    subscriptionId: 'bea02a17-caaa-4a8f-9f4a-3cc4b647bb1a'
+    azureResourceManagerConnection: 'new-connection'
+    subscriptionId: '036c9523-22ed-4407-84de-37ce553b4d7e'
     action: 'Create Or Update Resource Group'
-    resourceGroupName: 'Test'
+    resourceGroupName: 'WinRMTest'
     location: 'North Europe'
     templateLocation: 'URL of the file'
     csmFileLink: 'https://raw.githubusercontent.com/ziyadalrasbi/AzureRmPipeline-repo/master/CreateWebApp/azuredeploy.json'
-    csmParametersFileLink: 'https://raw.githubusercontent.com/ziyadalrasbi/AzureRmPipeline-repo/master/CreateWebApp/azuredeploy.parameters.json'
-    overrideParameters: |
-      -adminUsername elielmal
-      -adminPasswordOrKey Allezparis21
-      -PlatformSelection Linux
     deploymentMode: 'Incremental'
-    deploymentName: 'ArmDeployement1'
+    deploymentName: 'ArmDeploy'

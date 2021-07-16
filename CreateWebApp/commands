@@ -1,0 +1,26 @@
+New-AzKeyVault -VaultName ziyadthirdvault -ResourceGroupName WinRMTest -Location "North Europe" -EnabledForDeployment -EnabledForTemplateDeployment
+
+$certificateName = "testcertificate2"
+
+$thumbprint = (New-SelfSignedCertificate -DnsName $certificateName -CertStoreLocation Cert:\CurrentUser\My -KeySpec KeyExchange).Thumbprint
+
+$cert = (Get-ChildItem -Path cert:\CurrentUser\My\$thumbprint)
+
+$password = Read-Host -Prompt "Please enter the certificate password." -AsSecureString
+
+Export-PfxCertificate -Cert $cert -FilePath ".\$certificateName.pfx" -Password $password
+
+$fileName = "testcertificate2.pfx"
+$fileContentBytes = Get-Content $fileName -Encoding Byte
+$fileContentEncoded = [System.Convert]::ToBase64String($fileContentBytes)
+
+[System.Collections.HashTable]$TableForJSON = @{
+    "data"     = $fileContentEncoded;
+    "dataType" = "pfx";
+    "password" = "Exotichaha123";
+}
+[System.String]$jsonObject = $TableForJSON | ConvertTo-Json
+$jsonEncoded = [System.Convert]::ToBase64String($jsonObject)
+
+$secret = ConvertTo-SecureString -String $jsonEncoded -AsPlainText –Force
+Set-AzKeyVaultSecret -VaultName ziyadthirdvault -Name testsecret -SecretValue $secret
