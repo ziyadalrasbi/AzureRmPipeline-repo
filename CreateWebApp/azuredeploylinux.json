@@ -21,18 +21,8 @@
                 "description": "Username for the Virtual Machine."
             }
         },
-        "authenticationType": {
-            "type": "string",
-            "defaultValue": "password",
-            "allowedValues": [
-                "sshPublicKey",
-                "password"
-            ],
-            "metadata": {
-                "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
-            }
-        },
-        "adminPasswordOrKey": {
+
+        "adminKey": {
             "type": "secureString",
             "metadata": {
                 "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
@@ -103,18 +93,7 @@
         "networkInterfaceName": "[format('{0}NetInt', parameters('vmName'))]",
         "osDiskType": "Standard_LRS",
         "subnetAddressPrefix": "10.1.0.0/24",
-        "addressPrefix": "10.1.0.0/16",
-        "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-                "publicKeys": [
-                    {
-                        "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
-                        "keyData": "[parameters('adminPasswordOrKey')]"
-                    }
-                ]
-            }
-        }
+        "addressPrefix": "10.1.0.0/16"
     },
     "resources": [
         {
@@ -246,8 +225,18 @@
                 "osProfile": {
                     "computerName": "[parameters('vmName')]",
                     "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPasswordOrKey')]",
-                    "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+                    "adminPassword": "[parameters('adminKey')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                                    "keyData": "[parameters('adminKey')]"
+                                }
+                            ]
+                        }
+                    }
                 }
             },
             "dependsOn": [
